@@ -514,7 +514,7 @@
 
     .list-header {
       display: grid;
-      grid-template-columns: minmax(210px, 0.85fr) minmax(480px, 1.15fr);
+      grid-template-columns: minmax(210px, 0.78fr) minmax(480px, 1.15fr) minmax(145px, 0.34fr);
       align-items: center;
       gap: 14px;
       padding: 12px 16px;
@@ -536,7 +536,7 @@
 
     .santri-row {
       display: grid;
-      grid-template-columns: minmax(210px, 0.85fr) minmax(480px, 1.15fr);
+      grid-template-columns: minmax(210px, 0.78fr) minmax(480px, 1.15fr) minmax(145px, 0.34fr);
       align-items: center;
       gap: 14px;
       min-height: 70px;
@@ -593,6 +593,85 @@
       display: grid;
       grid-template-columns: repeat(5, minmax(72px, 1fr));
       gap: 7px;
+    }
+
+    .score-head {
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .score-field {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-label-mobile {
+      display: none;
+      color: var(--kbm-muted);
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .score-input-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 126px;
+    }
+
+    .daily-score-input {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 34px 9px 12px;
+      color: var(--kbm-navy);
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-align: center;
+      outline: none;
+      border: 1.5px solid #dfe7f3;
+      border-radius: 11px;
+      background: #f8faff;
+      transition: 0.18s ease;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .daily-score-input::-webkit-outer-spin-button,
+    .daily-score-input::-webkit-inner-spin-button {
+      margin: 0;
+      -webkit-appearance: none;
+    }
+
+    .daily-score-input:hover {
+      border-color: #bcd0ed;
+      background: #ffffff;
+    }
+
+    .daily-score-input:focus {
+      border-color: var(--kbm-primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(40,120,255,0.10);
+    }
+
+    .daily-score-input.is-invalid {
+      color: #c93649;
+      border-color: var(--kbm-red);
+      background: #fff3f5;
+      box-shadow: 0 0 0 4px rgba(255,93,108,0.10);
+    }
+
+    .score-suffix {
+      position: absolute;
+      top: 50%;
+      right: 11px;
+      color: #9aa7bb;
+      font-size: 0.62rem;
+      font-weight: 900;
+      transform: translateY(-50%);
+      pointer-events: none;
     }
 
     .radio-item {
@@ -962,7 +1041,7 @@
 
       .list-header,
       .santri-row {
-        min-width: 820px;
+        min-width: 990px;
       }
     }
 
@@ -1099,6 +1178,28 @@
         gap: 5px;
       }
 
+      .score-field {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 11px;
+        padding-top: 11px;
+        border-top: 1px solid #edf2fa;
+      }
+
+      .score-label-mobile {
+        display: block;
+      }
+
+      .score-input-wrap {
+        flex: 0 0 118px;
+        max-width: 118px;
+      }
+
+      .daily-score-input {
+        min-height: 43px;
+      }
+
       .checkmark {
         min-height: 42px;
         flex-direction: column;
@@ -1185,7 +1286,7 @@
       <div>
         <div class="hero-label">📘 Akademik Guru</div>
         <h1>Absensi KBM</h1>
-        <p>Catat kehadiran santri dan jurnal pembelajaran dalam satu halaman yang ringkas.</p>
+        <p>Catat kehadiran, nilai ulangan harian, dan jurnal pembelajaran dalam satu halaman.</p>
       </div>
 
       <div class="hero-user">
@@ -1236,8 +1337,8 @@
         <div class="panel-title-wrap">
           <div class="panel-icon">👥</div>
           <div>
-            <h2>Daftar Kehadiran</h2>
-            <p>Pilih satu status untuk setiap santri.</p>
+            <h2>Kehadiran & Nilai Harian</h2>
+            <p>Pilih status kehadiran dan isi nilai ulangan harian bila tersedia.</p>
           </div>
         </div>
         <span class="context-chip"><span id="jumlahSantri">0</span>&nbsp;santri</span>
@@ -1293,6 +1394,7 @@
             <span>Sakit</span>
             <span>Alfa</span>
           </div>
+          <div class="score-head">Nilai Ulangan Harian</div>
         </div>
 
         <div id="santriList">
@@ -1328,12 +1430,12 @@
       <div class="save-panel">
         <div>
           <div class="save-panel-title">☁️ Simpan ke CAHAYA APP</div>
-          <p>Pastikan kelas, mata pelajaran, dan status seluruh santri telah sesuai sebelum disimpan.</p>
+          <p>Pastikan kelas, mata pelajaran, kehadiran, dan nilai ulangan harian telah sesuai sebelum disimpan.</p>
         </div>
 
         <button class="btn-simpan" id="btnSimpan" onclick="simpanKehadiran()">
           <span>💾</span>
-          <span>Simpan Absensi</span>
+          <span>Simpan Absensi & Nilai</span>
         </button>
       </div>
     </section>
@@ -1744,8 +1846,46 @@
         actionGroup.appendChild(label);
       });
 
+      const scoreField = document.createElement("div");
+      scoreField.className = "score-field";
+
+      const scoreLabelMobile = document.createElement("span");
+      scoreLabelMobile.className = "score-label-mobile";
+      scoreLabelMobile.textContent = "Nilai Ulangan Harian";
+
+      const scoreInputWrap = document.createElement("div");
+      scoreInputWrap.className = "score-input-wrap";
+
+      const scoreInput = document.createElement("input");
+      scoreInput.type = "number";
+      scoreInput.className = "daily-score-input";
+      scoreInput.min = "0";
+      scoreInput.max = "100";
+      scoreInput.step = "0.01";
+      scoreInput.inputMode = "decimal";
+      scoreInput.placeholder = "—";
+      scoreInput.autocomplete = "off";
+      scoreInput.setAttribute("aria-label", `Nilai Ulangan Harian ${nama}`);
+
+      scoreInput.addEventListener("input", () => {
+        const raw = scoreInput.value.trim();
+        const nilai = Number(raw);
+        const valid = raw === "" || (Number.isFinite(nilai) && nilai >= 0 && nilai <= 100);
+        scoreInput.classList.toggle("is-invalid", !valid);
+      });
+
+      const scoreSuffix = document.createElement("span");
+      scoreSuffix.className = "score-suffix";
+      scoreSuffix.textContent = "/100";
+
+      scoreInputWrap.appendChild(scoreInput);
+      scoreInputWrap.appendChild(scoreSuffix);
+      scoreField.appendChild(scoreLabelMobile);
+      scoreField.appendChild(scoreInputWrap);
+
       row.appendChild(namaElement);
       row.appendChild(actionGroup);
+      row.appendChild(scoreField);
       listArea.appendChild(row);
     });
 
@@ -1799,7 +1939,7 @@
     btn.disabled = isLoading;
     btn.innerHTML = isLoading
       ? '<span>⏳</span><span>Menyimpan...</span>'
-      : '<span>💾</span><span>Simpan Absensi</span>';
+      : '<span>💾</span><span>Simpan Absensi & Nilai</span>';
   }
 
   window.simpanKehadiran = async function() {
@@ -1827,6 +1967,37 @@
       return;
     }
 
+    const barisNilaiTidakValid = barisSantri.filter((row) => {
+      const inputNilai = row.querySelector(".daily-score-input");
+      const raw = inputNilai?.value.trim() || "";
+
+      if (raw === "") {
+        inputNilai?.classList.remove("is-invalid");
+        return false;
+      }
+
+      const nilai = Number(raw);
+      const tidakValid = !Number.isFinite(nilai) || nilai < 0 || nilai > 100;
+      inputNilai?.classList.toggle("is-invalid", tidakValid);
+      return tidakValid;
+    });
+
+    if (barisNilaiTidakValid.length) {
+      const barisPertama = barisNilaiTidakValid[0];
+      const namaSantri = barisPertama.dataset.nama || "santri";
+      const inputPertama = barisPertama.querySelector(".daily-score-input");
+
+      showToast(
+        `Nilai ${namaSantri} harus berada antara 0 sampai 100.`,
+        "error",
+        "Nilai belum valid"
+      );
+
+      barisPertama.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => inputPertama?.focus(), 350);
+      return;
+    }
+
     setSaveButtonLoading(true);
 
     try {
@@ -1834,13 +2005,30 @@
         const nama = row.dataset.nama;
         const statusDipilih = row.querySelector('input[type="radio"]:checked');
         const status = statusDipilih ? statusDipilih.value : "Hadir";
+        const nilaiRaw = row.querySelector(".daily-score-input")?.value.trim() || "";
+        const nilaiUlanganHarian = nilaiRaw === "" ? null : Number(nilaiRaw);
 
         return {
           nama,
           status,
-          poin: hitungPoin(status, mapel)
+          poin: hitungPoin(status, mapel),
+          nilaiUlanganHarian,
+          nilaiUlanganHarianDiisi: nilaiRaw !== ""
         };
       });
+
+      const nilaiTerisi = hasil
+        .map((item) => item.nilaiUlanganHarian)
+        .filter((nilai) => Number.isFinite(nilai));
+
+      const rataRataNilaiUlanganHarian = nilaiTerisi.length
+        ? Number(
+            (
+              nilaiTerisi.reduce((total, nilai) => total + nilai, 0) /
+              nilaiTerisi.length
+            ).toFixed(2)
+          )
+        : null;
 
       const payload = {
         tanggal,
@@ -1858,6 +2046,9 @@
         guruUid: user?.uid || "",
         tahunAjaran: "2026/2027",
         jumlahSantri: hasil.length,
+        adaNilaiUlanganHarian: nilaiTerisi.length > 0,
+        jumlahNilaiUlanganHarian: nilaiTerisi.length,
+        rataRataNilaiUlanganHarian,
         data: hasil,
         waktuSimpan: new Date().toISOString()
       };
@@ -1868,7 +2059,7 @@
       );
 
       showToast(
-        "Absensi KBM berhasil disimpan.",
+        "Absensi dan nilai ulangan harian berhasil disimpan.",
         "success",
         "Penyimpanan berhasil"
       );
